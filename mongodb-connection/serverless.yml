@@ -63,6 +63,12 @@ functions:
       - http:
           path: users/login
           method: post
+  profile:
+    handler: handler.profile
+    events:
+      - http:
+          path: users/profile
+          method: post
 
 #    you can add any of the following events
 #    events:
