@@ -4,7 +4,7 @@ var q = require("q");
 
 //this function will take a string as input and return hash on success and error object on error
 
-exports.passwordToHash = function(PasswordString) {
+exports.stringToHash = function(PasswordString) {
 
     var deferred = q.defer();
     var round = 10;
