@@ -59,7 +59,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "1474994979301-2016-09-27T16:49:39.301Z/mongodb-connection.zip"
+          "S3Key": "1475072433809-2016-09-28T14:20:33.809Z/mongodb-connection.zip"
         },
         "FunctionName": "mongodb-connection-dev-hello",
         "Handler": "handler.hello",
@@ -81,7 +81,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "1474994979301-2016-09-27T16:49:39.301Z/mongodb-connection.zip"
+          "S3Key": "1475072433809-2016-09-28T14:20:33.809Z/mongodb-connection.zip"
         },
         "FunctionName": "mongodb-connection-dev-signup",
         "Handler": "handler.signup",
@@ -103,7 +103,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "1474994979301-2016-09-27T16:49:39.301Z/mongodb-connection.zip"
+          "S3Key": "1475072433809-2016-09-28T14:20:33.809Z/mongodb-connection.zip"
         },
         "FunctionName": "mongodb-connection-dev-login",
         "Handler": "handler.login",
@@ -511,7 +511,7 @@
         }
       }
     },
-    "ApiGatewayDeployment1474994979314": {
+    "ApiGatewayDeployment1475072433823": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
