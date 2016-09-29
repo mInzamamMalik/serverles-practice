@@ -21,3 +21,14 @@ exports.stringToHash = function(PasswordString) {
     });
     return deferred.promise;
 }
+
+exports.varifyHash = function(realPassword,hashString) {
+    var deferred = q.defer();
+    bcrypt.compare(realPassword,hashString,function(err,result){//'result'' will be boolean 
+        if(err){               
+           deferred.reject(err);//it means hash is invalid
+        }          
+        deferred.resolve(result);//return with boolean 'Hash' is matched or not
+    }); 
+    return deferred.promise;
+}
