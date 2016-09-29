@@ -32,3 +32,15 @@ exports.varifyHash = function(realPassword,hashString) {
     }); 
     return deferred.promise;
 }
+
+
+exports.validateHash = function(hashString) {//true or false in resolve, no reject
+    var deferred = q.defer();
+    bcrypt.compare("dummy",hashString,function(err,result){//'result'' will be boolean 
+        if(err){               
+           deferred.resolve(false);//it means Hash is invalid
+        }          
+        deferred.resolve(true);//it means hash is either matched or not but it is a valid Hash
+    }); 
+    return deferred.promise;
+}
