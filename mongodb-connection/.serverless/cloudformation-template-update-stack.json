@@ -59,7 +59,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "1475072433809-2016-09-28T14:20:33.809Z/mongodb-connection.zip"
+          "S3Key": "1475162602316-2016-09-29T15:23:22.316Z/mongodb-connection.zip"
         },
         "FunctionName": "mongodb-connection-dev-hello",
         "Handler": "handler.hello",
@@ -81,7 +81,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "1475072433809-2016-09-28T14:20:33.809Z/mongodb-connection.zip"
+          "S3Key": "1475162602316-2016-09-29T15:23:22.316Z/mongodb-connection.zip"
         },
         "FunctionName": "mongodb-connection-dev-signup",
         "Handler": "handler.signup",
@@ -103,10 +103,32 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "1475072433809-2016-09-28T14:20:33.809Z/mongodb-connection.zip"
+          "S3Key": "1475162602316-2016-09-29T15:23:22.316Z/mongodb-connection.zip"
         },
         "FunctionName": "mongodb-connection-dev-login",
         "Handler": "handler.login",
+        "MemorySize": 1024,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs4.3",
+        "Timeout": 6
+      }
+    },
+    "ProfileLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "1475162602316-2016-09-29T15:23:22.316Z/mongodb-connection.zip"
+        },
+        "FunctionName": "mongodb-connection-dev-profile",
+        "Handler": "handler.profile",
         "MemorySize": 1024,
         "Role": {
           "Fn::GetAtt": [
@@ -170,6 +192,18 @@
           "Ref": "ApiGatewayResourceUsers"
         },
         "PathPart": "login",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceUsersProfile": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceUsers"
+        },
+        "PathPart": "profile",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -511,7 +545,119 @@
         }
       }
     },
-    "ApiGatewayDeployment1475072433823": {
+    "ApiGatewayMethodUsersProfilePost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "POST",
+        "MethodResponses": [
+          {
+            "ResponseModels": {},
+            "ResponseParameters": {},
+            "StatusCode": 200
+          },
+          {
+            "StatusCode": 400
+          },
+          {
+            "StatusCode": 401
+          },
+          {
+            "StatusCode": 403
+          },
+          {
+            "StatusCode": 404
+          },
+          {
+            "StatusCode": 422
+          },
+          {
+            "StatusCode": 500
+          },
+          {
+            "StatusCode": 502
+          },
+          {
+            "StatusCode": 504
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:aws:apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "ProfileLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          },
+          "RequestTemplates": {
+            "application/json": "\n            #define( $loop )\n              {\n              #foreach($key in $map.keySet())\n                  \"$util.escapeJavaScript($key)\":\n                    \"$util.escapeJavaScript($map.get($key))\"\n                    #if( $foreach.hasNext ) , #end\n              #end\n              }\n            #end\n\n            {\n              \"body\": $input.json(\"$\"),\n              \"method\": \"$context.httpMethod\",\n              \"principalId\": \"$context.authorizer.principalId\",\n              \"stage\": \"$context.stage\",\n\n              #set( $map = $input.params().header )\n              \"headers\": $loop,\n\n              #set( $map = $input.params().querystring )\n              \"query\": $loop,\n\n              #set( $map = $input.params().path )\n              \"path\": $loop,\n\n              #set( $map = $context.identity )\n              \"identity\": $loop,\n\n              #set( $map = $stageVariables )\n              \"stageVariables\": $loop\n            }\n          ",
+            "application/x-www-form-urlencoded": "\n            #define( $body )\n              {\n              #foreach( $token in $input.path('$').split('&') )\n                #set( $keyVal = $token.split('=') )\n                #set( $keyValSize = $keyVal.size() )\n                #if( $keyValSize >= 1 )\n                  #set( $key = $util.urlDecode($keyVal[0]) )\n                  #if( $keyValSize >= 2 )\n                    #set( $val = $util.urlDecode($keyVal[1]) )\n                  #else\n                    #set( $val = '' )\n                  #end\n                  \"$key\": \"$val\"#if($foreach.hasNext),#end\n                #end\n              #end\n              }\n            #end\n\n            #define( $loop )\n              {\n              #foreach($key in $map.keySet())\n                  \"$util.escapeJavaScript($key)\":\n                    \"$util.escapeJavaScript($map.get($key))\"\n                    #if( $foreach.hasNext ) , #end\n              #end\n              }\n            #end\n\n            {\n              \"body\": $body,\n              \"method\": \"$context.httpMethod\",\n              \"principalId\": \"$context.authorizer.principalId\",\n              \"stage\": \"$context.stage\",\n\n              #set( $map = $input.params().header )\n              \"headers\": $loop,\n\n              #set( $map = $input.params().querystring )\n              \"query\": $loop,\n\n              #set( $map = $input.params().path )\n              \"path\": $loop,\n\n              #set( $map = $context.identity )\n              \"identity\": $loop,\n\n              #set( $map = $stageVariables )\n              \"stageVariables\": $loop\n            }\n          "
+          },
+          "PassthroughBehavior": "NEVER",
+          "IntegrationResponses": [
+            {
+              "StatusCode": 200,
+              "ResponseParameters": {},
+              "ResponseTemplates": {}
+            },
+            {
+              "StatusCode": 400,
+              "SelectionPattern": ".*\\[400\\].*"
+            },
+            {
+              "StatusCode": 401,
+              "SelectionPattern": ".*\\[401\\].*"
+            },
+            {
+              "StatusCode": 403,
+              "SelectionPattern": ".*\\[403\\].*"
+            },
+            {
+              "StatusCode": 404,
+              "SelectionPattern": ".*\\[404\\].*"
+            },
+            {
+              "StatusCode": 422,
+              "SelectionPattern": ".*\\[422\\].*"
+            },
+            {
+              "StatusCode": 500,
+              "SelectionPattern": ".*(Process\\s?exited\\s?before\\s?completing\\s?request|\\[500\\]).*"
+            },
+            {
+              "StatusCode": 502,
+              "SelectionPattern": ".*\\[502\\].*"
+            },
+            {
+              "StatusCode": 504,
+              "SelectionPattern": ".*\\[504\\].*"
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceUsersProfile"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayDeployment1475162602332": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -522,7 +668,8 @@
       "DependsOn": [
         "ApiGatewayMethodUsersHelloGet",
         "ApiGatewayMethodUsersSignupPost",
-        "ApiGatewayMethodUsersLoginPost"
+        "ApiGatewayMethodUsersLoginPost",
+        "ApiGatewayMethodUsersProfilePost"
       ]
     },
     "HelloLambdaPermissionApiGateway": {
@@ -563,6 +710,19 @@
         "Action": "lambda:InvokeFunction",
         "Principal": "apigateway.amazonaws.com"
       }
+    },
+    "ProfileLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "ProfileLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com"
+      }
     }
   },
   "Outputs": {
@@ -594,6 +754,15 @@
       "Value": {
         "Fn::GetAtt": [
           "LoginLambdaFunction",
+          "Arn"
+        ]
+      }
+    },
+    "ProfileLambdaFunctionArn": {
+      "Description": "Lambda function info",
+      "Value": {
+        "Fn::GetAtt": [
+          "ProfileLambdaFunction",
           "Arn"
         ]
       }
