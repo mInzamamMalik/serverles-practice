@@ -3,16 +3,18 @@
 var mongoose = require("mongoose");
 var encryption = require("./pureFunctions/encryption");
 var models = require("./db/models");
+var auth = require("./pureFunctions/auth");
 
 var dbURI = "mongodb://testuser:testuser@ds041536.mlab.com:41536/inztest";
 //var dbURI = 'mongodb://localhost/mydatabase';
-1
+
 mongoose.connect(dbURI);
 mongoose.connection.on('connected', function () {//connected
     console.log("Mongoose is connected");
     // process.exit(1);
 });
 
+/////////////////////////////////////////////////////////////////////////////////////
 module.exports.signup = (event, context, cb) => {
 
     console.log("query: ", event.query);
@@ -21,7 +23,7 @@ module.exports.signup = (event, context, cb) => {
     var username = event.body.username;
     var password = event.body.password;
 
-    encryption.passwordToHash(password).then(function (passwordHash) {
+    encryption.stringToHash(password).then(function (passwordHash) {
 
         console.log("abc");
         var newUser = new models.user({
