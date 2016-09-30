@@ -20,13 +20,35 @@ module.exports.signup = (event, context, cb) => {
     console.log("query: ", event.query);
     console.log("body: ", event.body);
 
-    var username = event.body.username;
+    var firstName = event.body.firstName;
+    var lastName = event.body.lastName;
+    var avatar = event.body.avatar;
+    var email = event.body.email;
+    var phone = event.body.phone;
     var password = event.body.password;
+    var role = event.body.role;
+    var fbId = event.body.fbId;
+    var timeZone = event.body.timeZone;
+    var payment = event.body.payment;
+    var pushTokens = event.body.pushTokens;
+    var resetToken = event.body.resetToken;
+    var active = event.body.active;
 
     encryption.stringToHash(password).then(function (passwordHash) {
         var newUser = new models.user({
-            username: username,
-            password: passwordHash
+            firstName: firstName,
+            lastName: lastName,
+            avatar: avatar,
+            phone: phone,
+            email: email,
+            password: passwordHash,
+            role: role,
+            fbId: fbId,
+            timeZone: timeZone,
+            payment: payment,
+            pushTokens: pushTokens,
+            resetToken: resetToken,
+            active: active
         });
         newUser.save(function (err, data) {
             if (err) {
@@ -40,7 +62,7 @@ module.exports.signup = (event, context, cb) => {
             });
         });
     }, function (error) {
-        cb("bcrypt error", { message: 'Signup Success!', error });
+        cb("bcrypt error", { message: 'Signup Error!', error });
     });
 }
 
@@ -48,10 +70,10 @@ module.exports.signup = (event, context, cb) => {
 module.exports.login = (event, context, cb) => {
 
     console.log("body: ", event.body);
-    var username = event.body.username;
+    var email = event.body.email;
     var password = event.body.password;
 
-    models.user.findOne({ username: username }, function (err, data) {
+    models.user.findOne({ email: email }, function (err, data) {
         if (!err) {
             if (!data) {
                 console.log("user not exist: ", err);
@@ -65,7 +87,7 @@ module.exports.login = (event, context, cb) => {
                     if (success) {
                         console.log("password is correct, generating token...");
                         //generate token here and send to user
-                        auth.generateToken({ username: data.username }).then(function (token) {
+                        auth.generateToken({ email: data.email }).then(function (token) {
                             console.log("logged in successfully, token: ", token);
                             cb(null, {
                                 message: 'logged in successfully, token: ' + token,
