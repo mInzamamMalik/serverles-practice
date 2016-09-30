@@ -19,7 +19,7 @@ exports.generateToken = function (someData) { //someData must be JSON
                 deferred.reject({ message: "mongoose error", err: err });
             } else {
                 console.log("token: ", Hash);
-                deferred.resolve(Hash);
+                deferred.resolve(Hash)
             }
         });
     }, function (error) {
