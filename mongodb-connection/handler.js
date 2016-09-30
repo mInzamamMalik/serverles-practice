@@ -64,24 +64,32 @@ module.exports.login = (event, context, cb) => {
             console.log("user found in database, checking password");
 
             encryption.varifyHash(password, data.password).then(function (success) {
+                if (success) {
+                    console.log("password is correct, generating token...");
+                    //generate token here and send to user
+                    auth.generateToken({ username: data.username }).then(function (token) {
 
-                console.log("password is correct, generating token...");
-                //generate token here and send to user
-                auth.generateToken({ username: data.username }).then(function (token) {
+                        console.log("logged in successfully, token: ", token);
+                        cb(null, {
+                            message: 'logged in successfully, token: ' + token,
+                            event
+                        });
 
-                    console.log("logged in successfully, token: ", token);
+                    }, function (err) {
+                        console.log("error in token generation: ", err);
+                        cb(null, {
+                            message: 'error in token generation',
+                            event
+                        });
+                    });
+                } else {
+                    console.log("password is incorrect");
                     cb(null, {
-                        message: 'logged in successfully, token: ' + token,
+                        message: "password is incorrect",
                         event
                     });
+                }
 
-                }, function (err) {
-                    console.log("error in token generation: ", err);
-                    cb(null, {
-                        message: 'error in token generation',
-                        event
-                    });
-                });
 
             }, function (err) {
                 console.log("password not matched", err);
