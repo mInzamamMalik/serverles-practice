@@ -8,10 +8,10 @@ As we have used <b>node js</b> we made a folder for db and pureFunctions.
 
 
 <dl>
-  <dt>DB</dt>
+  <dt>DB:</dt>
   <dd>In this folder we have made a basic user model..</dd>
 
-  <dt>PureFunctions</dt>
+  <dt>PureFunctions:</dt>
   <dd>In this folder we have made our methods like generateToken, verifyToken, etc on the pattern we are already following for node js applications.</dd>
 </dl>
 
