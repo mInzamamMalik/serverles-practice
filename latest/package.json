@@ -1,0 +1,17 @@
+{
+  "name": "latest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "rough.js",
+  "dependencies": {
+    "mongoose": "^4.9.7",
+    "request": "^2.81.0",
+    "xml2js": "^0.4.17"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

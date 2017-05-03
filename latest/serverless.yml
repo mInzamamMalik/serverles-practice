@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: aws-nodejs # NOTE: update this with your service name
+service: podcastbot # NOTE: update this with your service name
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -26,15 +26,17 @@ provider:
 #  region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
+iamRoleStatements:
+  - Effect: "Allow"
+    Action:
+      - "s3:ListBucket"
+
 #      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
 #    - Effect: "Allow"
 #      Action:
 #        - "s3:PutObject"
-#      Resource:
+#      Resource: "arn:aws:dynamodb:us-west-2:account-id:table/Books"
+
 #        Fn::Join:
 #          - ""
 #          - - "arn:aws:s3:::"
@@ -56,11 +58,8 @@ provider:
 
 functions:
   hello:
-    handler: handler.hello
-    events:
-      - http:
-         path: users/create
-         method: get
+    handler: handler.webhook
+  
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
