@@ -14,13 +14,31 @@ var model = mongoose.model('channels', sch);
 
 module.exports.webhook = (event, context, callback) => {
   try {
-    var query = "health"; //religion, sports, politics, business, music, education
-    var regex = new RegExp("^" + query + "$", 'i');
+
+    console.log("event: ", event);
+
+    var category = event.currentIntent.slots['category']; //religion, sports, politics, business, music, education
+    var intentName = event.currentIntent.name
+    console.log("intent name: ", category);
+    console.log("slot: ", category);
+    var regex = new RegExp("^" + category + "$", 'i');
 
     model.find({ "Category": regex }, function (err, _data) {
       if (!err) {
-        if (!_data) {
-            console.log("mongodb no data found");
+        if (!_data || !_data.length) {
+
+          console.log("mongodb: no data found for category " + category);
+          context.succeed({
+            "dialogAction": {
+              "type": "Close",
+              "fulfillmentState": "Fulfilled",
+              "message": {
+                "contentType": "PlainText",
+                "content": "mongodb: no data found for category " + category
+              }
+            }
+          })
+          
         } else {
           var data = JSON.parse(JSON.stringify(_data));//simplified object
 
@@ -47,13 +65,13 @@ module.exports.webhook = (event, context, callback) => {
                   console.log(items[choosedItem].enclosure[0].$.url)
                   var podcastUrl = items[choosedItem].enclosure[0].$.url;
 
-                   context.succeed({
+                  context.succeed({
                     "dialogAction": {
                       "type": "Close",
                       "fulfillmentState": "Fulfilled",
                       "message": {
                         "contentType": "PlainText",
-                        "content": "message to convey to the user"
+                        "content": podcastUrl
                       }
                     }
                   })
