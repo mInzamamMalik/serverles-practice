@@ -1,8 +1,16 @@
 'use strict';
+// Load the SDK and UUID
+var AWS = require('aws-sdk');
+var uuid = require('node-uuid');
 var request = require("request");
 var parseXmlToJson = require('xml2js').parseString;
 var mongoose = require("mongoose");
+
+AWS.config.update({ region: 'us-east-1' });
+var lexruntime = new AWS.LexRuntime();
+
 mongoose.connect("mongodb://dbuser:dbuser@ds131041.mlab.com:31041/podcastdb");
+
 var Schema = mongoose.Schema;
 var sch = new Schema({
   client: String,
@@ -106,6 +114,43 @@ module.exports.webhook = (event, context, callback) => {
   } catch (e) {
     console.log("catch: ", e);
   }
+};
+
+
+
+
+module.exports.say = (event, context, callback) => {
+
+  var params = {
+    botAlias: 'prod', /* required */ //you will get an alias name when you release your bot build
+    botName: 'podcastbot', /* required */ //it is just name of your bot
+    inputText: 'I want to listen sports', /* required */ //the text you want to say to bot
+    userId: 'STRING_VALUE', /* required */ //unique user id, so bot can identify each user at runtime
+    sessionAttributes: {
+      '<String>': 'STRING_VALUE',
+      /* '<String>': ... */
+    }
+  };
+
+  lexruntime.postText(params, function (err, data) {
+    if (err) {
+      console.log(err, err.stack); // an error occurred
+      const response = {
+        statusCode: 500,
+        body: JSON.stringify(err),
+      };
+      context.succeed(response);
+    } else {
+      console.log(data);           // successful response
+      const response = {
+        statusCode: 200,
+        body: JSON.stringify(data),
+      };
+      context.succeed(response);
+    }
+  });
+
+
 };
 
   // var AWS = require("aws-sdk");
