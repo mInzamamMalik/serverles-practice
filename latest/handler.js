@@ -50,3 +50,26 @@ module.exports.webhook = (event, context, callback) => {
   })
 
 };
+
+
+  // To respond bot
+  // callback(null, {
+  //   "dialogAction": {
+  //     "type": "Close",
+  //     "fulfillmentState": "Fulfilled",
+  //     "message": {
+  //       "contentType": "PlainText",
+  //       "content": "message to convey to the user"
+  //     }
+  //   }
+  // })
+
+  // To repond rest api
+  // const response = {
+  //   statusCode: 200,
+  //   body: JSON.stringify({
+  //     message: 'Go Serverless v1.0! Your function executed successfully!',
+  //     // input: event,
+  //   }),
+  // };
+  // callback(null, response);
