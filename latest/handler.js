@@ -3,7 +3,7 @@
 module.exports.webhook = (event, context, callback) => {
 
   var mongoose = require("mongoose");
-  mongoose.connect("mongodb://malikasinger:pakistan1@ds149049.mlab.com:49049/malikasinger-demo");
+  // mongoose.connect("mongodb://malikasinger:pakistan1@ds149049.mlab.com:49049/malikasinger-demo");
 
   console.log("event: ", event);
   // var AWS = require("aws-sdk");
@@ -36,14 +36,6 @@ module.exports.webhook = (event, context, callback) => {
     "Link": "www.battiti.rai.it",
     "Feed": "http://www.radio.rai.it/radio3/podcast/rssradio3.jsp?id=3030"
   }
-
-  mongoose.find({ title: "Music" }, function (err, data) {
-    if (!err) {
-      console.log("data: ", data);
-    } else {
-      console.log("error: ", err);
-    }
-  });
 
 
   callback(null, {
