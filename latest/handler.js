@@ -21,71 +21,84 @@ module.exports.webhook = (event, context, callback) => {
     var intentName = event.currentIntent.name
     console.log("intent name: ", category);
     console.log("slot: ", category);
-    var regex = new RegExp("^" + category + "$", 'i');
+    var regex = new RegExp(category, 'i');
 
-    model.find({ "Category": regex }, function (err, _data) {
-      if (!err) {
-        if (!_data || !_data.length) {
+    model.find({
+      $or: [
+        { "Title": regex },
+        { "Description": regex },
+        { "Category": regex },
+        { "Keywords": { $exists: true } },
+        { "Image": regex },
+        { "Author": regex },
+        { "Link": regex },
+        { "Feed": regex }]
+    },
+      function (err, _data) {
+        if (!err) {
+          if (!_data || !_data.length) {
 
-          console.log("mongodb: no data found for category " + category);
-          context.succeed({
-            "dialogAction": {
-              "type": "Close",
-              "fulfillmentState": "Fulfilled",
-              "message": {
-                "contentType": "PlainText",
-                "content": "mongodb: no data found for category " + category
-              }
-            }
-          })
-          
-        } else {
-          var data = JSON.parse(JSON.stringify(_data));//simplified object
-
-          console.log("data: ", data.length);
-          var choose = rand(0, data.length - 1)
-          console.log("choosed: ", choose);
-
-          var feedUrl = data[choose]["Feed"];
-          console.log("Feed: ", feedUrl);
-          request(feedUrl,
-            function (error, response, body) {
-              if (!error && response.statusCode == 200) {
-
-                var xmlbody = body.toString();
-                // console.log("body: ", xmlbody);
-                parseXmlToJson(xmlbody, function (err, json) {
-                  console.log(json);
-
-                  console.log("items length: ", json.rss.channel[0].item['length']);
-                  // console.log("items: ", JSON.stringify(json.rss.channel[0].item));
-                  var items = json.rss.channel[0].item;
-                  var choosedItem = rand(0, items.length - 1);
-                  console.log("choosed item: ", choosedItem);
-                  console.log(items[choosedItem].enclosure[0].$.url)
-                  var podcastUrl = items[choosedItem].enclosure[0].$.url;
-
-                  context.succeed({
-                    "dialogAction": {
-                      "type": "Close",
-                      "fulfillmentState": "Fulfilled",
-                      "message": {
-                        "contentType": "PlainText",
-                        "content": podcastUrl
-                      }
-                    }
-                  })
-
-                });
-              } else {
-                console.log("request error: ", error);
+            console.log("mongodb: no data found for category " + category);
+            context.succeed({
+              "dialogAction": {
+                "type": "Close",
+                "fulfillmentState": "Fulfilled",
+                "message": {
+                  "contentType": "PlainText",
+                  "content": "mongodb: no data found for category " + category
+                }
               }
             })
+
+          } else {
+            var data = JSON.parse(JSON.stringify(_data));//simplified object
+
+            console.log("data: ", data.length);
+            var choose = rand(0, data.length - 1)
+            console.log("choosed: ", choose);
+
+            var feedUrl = data[choose]["Feed"];
+            console.log("Feed: ", feedUrl);
+            request(feedUrl,
+              function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+
+                  var xmlbody = body.toString();
+                  // console.log("body: ", xmlbody);
+                  parseXmlToJson(xmlbody, function (err, json) {
+                    console.log(json);
+
+                    console.log("items length: ", json.rss.channel[0].item['length']);
+                    // console.log("items: ", JSON.stringify(json.rss.channel[0].item));
+                    var items = json.rss.channel[0].item;
+
+                    var choosedItem = rand(0, items.length - 1);
+                    console.log("choosed item: ", choosedItem);
+
+                    var podcastUrl = items[choosedItem].enclosure[0].$.url;
+                    console.log(podcastUrl)
+
+                    context.succeed({
+                      "dialogAction": {
+                        "type": "Close",
+                        "fulfillmentState": "Fulfilled",
+                        "message": {
+                          "contentType": "PlainText",
+                          "content": podcastUrl
+                        }
+                      }
+                    })
+
+                  });
+                } else {
+                  console.log("request error: ", error);
+                }
+              })
+          }
+        } else {
+          console.log("find error: ", err);
         }
-      } else {
-        console.log("find error: ", err);
-      }
-    });
+      });
 
     function rand(min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min);
