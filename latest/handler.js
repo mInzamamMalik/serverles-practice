@@ -122,11 +122,14 @@ module.exports.webhook = (event, context, callback) => {
 };
 
 module.exports.say = (event, context, callback) => {
-
+  
+  var text = JSON.parse(event.body).text;
+  console.log("text: ", text);
+  
   var params = {
     botAlias: 'prod', /* required */ //you will get an alias name when you release your bot build
     botName: 'podcastbot', /* required */ //it is just name of your bot
-    inputText: 'I want to listen sports', /* required */ //the text you want to say to bot
+    inputText: text, /* required */ //the text you want to say to bot
     userId: 'STRING_VALUE', /* required */ //unique user id, so bot can identify each user at runtime
     sessionAttributes: {
       '<String>': 'STRING_VALUE',
