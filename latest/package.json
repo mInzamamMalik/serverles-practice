@@ -8,6 +8,7 @@
     "mongoose": "^4.9.7",
     "node-uuid": "^1.4.8",
     "request": "^2.81.0",
+    "twilio": "^3.0.0",
     "xml2js": "^0.4.17"
   },
   "devDependencies": {},

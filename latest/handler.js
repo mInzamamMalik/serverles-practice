@@ -6,6 +6,11 @@ var request = require("request");
 var parseXmlToJson = require('xml2js').parseString;
 var mongoose = require("mongoose");
 
+var twilio = require('twilio');
+var accountSid = 'ACbebf3b569314a14fe10fd41df46055f4'; // Your Account SID from www.twilio.com/console
+var authToken = 'b8b75c00ec3172f497faa50a0ccda3b0';   // Your Auth Token from www.twilio.com/console
+var client = new twilio(accountSid, authToken);
+
 AWS.config.update({ region: 'us-east-1' });
 var lexruntime = new AWS.LexRuntime();
 
@@ -116,9 +121,6 @@ module.exports.webhook = (event, context, callback) => {
   }
 };
 
-
-
-
 module.exports.say = (event, context, callback) => {
 
   var params = {
@@ -149,8 +151,10 @@ module.exports.say = (event, context, callback) => {
       context.succeed(response);
     }
   });
+}
 
-
+module.exports.twiliowebhook = (event, context, callback) => {
+    
 };
 
   // var AWS = require("aws-sdk");
