@@ -85,6 +85,7 @@ functions:
       - http:
          path: webhook
          method: post
+         integration: lambda
  
   say:
     handler: handler.say
@@ -92,13 +93,40 @@ functions:
       - http:
          path: say
          method: post
+         integration: lambda
 
-  twiliowebhook:
-    handler: handler.twiliowebhook
-    events:
-      - http:
-         path: twiliowebhook
-         method: post
+  # voice:
+  #   handler: handler.voice
+  #   events:
+  #     - http:
+  #         path: voice
+  #         method: post
+  #         integration: lambda
+  #         response:
+  #           headers:
+  #             Content-Type: "'application/xml'"
+  #         template: $input.path("$")
+  #         statusCodes:
+  #               200:
+  #                   pattern: '.*' # JSON response
+  #                   template:
+  #                     application/xml: $input.path("$.body") # XML return object
+  #                   headers:
+  #                     Content-Type: "'application/xml'"
+
+  
+  # transcribe:
+  #   handler: handler.transcribe
+  #   events:
+  #     - http:
+  #         path: voice/transcribe
+  #         method: post
+  #         integration: lambda
+  #         response:
+  #           headers:
+  #             Content-Type: "'text/xml'"
+            
+                      
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

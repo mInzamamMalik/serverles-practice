@@ -6,13 +6,14 @@ var request = require("request");
 var parseXmlToJson = require('xml2js').parseString;
 var mongoose = require("mongoose");
 
+var VoiceResponse = require('twilio').twiml.VoiceResponse;
+
 var twilio = require('twilio');
 var accountSid = 'ACbebf3b569314a14fe10fd41df46055f4'; // Your Account SID from www.twilio.com/console
 var authToken = 'b8b75c00ec3172f497faa50a0ccda3b0';   // Your Auth Token from www.twilio.com/console
 var client = new twilio(accountSid, authToken);
 
 AWS.config.update({ region: 'us-east-1' });
-var lexruntime = new AWS.LexRuntime();
 
 mongoose.connect("mongodb://dbuser:dbuser@ds131041.mlab.com:31041/podcastdb");
 
@@ -24,7 +25,7 @@ var sch = new Schema({
 var model = mongoose.model('channels', sch);
 
 
-
+// lex fulfilment webhook
 module.exports.webhook = (event, context, callback) => {
   try {
 
@@ -121,11 +122,18 @@ module.exports.webhook = (event, context, callback) => {
   }
 };
 
+
+//exposed rest api of lex
 module.exports.say = (event, context, callback) => {
-  
-  var text = JSON.parse(event.body).text;
+  var lexruntime = new AWS.LexRuntime();
+
+  console.log("event: ", event);
+  console.log("event.body: ", event.body);
+  console.log("event.body.text: ", event.body.text);
+
+  var text = event.body.text
   console.log("text: ", text);
-  
+
   var params = {
     botAlias: 'prod', /* required */ //you will get an alias name when you release your bot build
     botName: 'podcastbot', /* required */ //it is just name of your bot
@@ -142,23 +150,30 @@ module.exports.say = (event, context, callback) => {
       console.log(err, err.stack); // an error occurred
       const response = {
         statusCode: 500,
-        body: JSON.stringify(err),
+        body: err,
       };
       context.succeed(response);
     } else {
       console.log(data);           // successful response
       const response = {
         statusCode: 200,
-        body: JSON.stringify(data),
+        body: data,
       };
       context.succeed(response);
     }
   });
 }
 
-module.exports.twiliowebhook = (event, context, callback) => {
-    
-};
+
+// // helper to append a new "Say" verb with alice voice
+// function say(text) {
+//   twiml.say({ voice: 'alice' }, text);
+// }
+
+// // respond with the current TwiML content
+// function respond(context) {
+//   context.succeed(twiml.toString());
+// }
 
   // var AWS = require("aws-sdk");
   // AWS.config.update({
