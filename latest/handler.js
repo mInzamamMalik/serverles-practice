@@ -1,17 +1,9 @@
 'use strict';
-// Load the SDK and UUID
+
 var AWS = require('aws-sdk');
-var uuid = require('node-uuid');
 var request = require("request");
 var parseXmlToJson = require('xml2js').parseString;
 var mongoose = require("mongoose");
-
-var VoiceResponse = require('twilio').twiml.VoiceResponse;
-
-var twilio = require('twilio');
-var accountSid = 'ACbebf3b569314a14fe10fd41df46055f4'; // Your Account SID from www.twilio.com/console
-var authToken = 'b8b75c00ec3172f497faa50a0ccda3b0';   // Your Auth Token from www.twilio.com/console
-var client = new twilio(accountSid, authToken);
 
 AWS.config.update({ region: 'us-east-1' });
 
@@ -23,6 +15,20 @@ var sch = new Schema({
   title: String
 });
 var model = mongoose.model('channels', sch);
+
+// helper function for return fullfilment to bot
+function fullfill(context, fulfilmentMessage) {
+  context.succeed({
+    "dialogAction": {
+      "type": "Close",
+      "fulfillmentState": "Fulfilled",
+      "message": {
+        "contentType": "PlainText",
+        "content": fulfilmentMessage
+      }
+    }
+  })
+}
 
 
 // lex fulfilment webhook
@@ -52,17 +58,8 @@ module.exports.webhook = (event, context, callback) => {
         if (!err) {
           if (!_data || !_data.length) {
 
-            console.log("mongodb: no data found for category " + category);
-            context.succeed({
-              "dialogAction": {
-                "type": "Close",
-                "fulfillmentState": "Fulfilled",
-                "message": {
-                  "contentType": "PlainText",
-                  "content": "mongodb: no data found for category " + category
-                }
-              }
-            })
+            console.log("mongodb: no channel found for category " + category);
+            fullfill(context, "mongodb: no channel found for category " + category)
 
           } else {
             var data = JSON.parse(JSON.stringify(_data));//simplified object
@@ -76,41 +73,41 @@ module.exports.webhook = (event, context, callback) => {
             request(feedUrl,
               function (error, response, body) {
                 if (!error && response.statusCode == 200) {
+                  
+                  // some time we are getting bad data structure so we catch that error here
+                  try {
 
-                  var xmlbody = body.toString();
-                  // console.log("body: ", xmlbody);
-                  parseXmlToJson(xmlbody, function (err, json) {
-                    console.log(json);
+                    var xmlbody = body.toString();
+                    // console.log("body: ", xmlbody);
+                    parseXmlToJson(xmlbody, function (err, json) {
+                      console.log(json);
 
-                    console.log("items length: ", json.rss.channel[0].item['length']);
-                    // console.log("items: ", JSON.stringify(json.rss.channel[0].item));
-                    var items = json.rss.channel[0].item;
+                      console.log("items length: ", json.rss.channel[0].item['length']);
+                      // console.log("items: ", JSON.stringify(json.rss.channel[0].item));
+                      var items = json.rss.channel[0].item;
 
-                    var choosedItem = rand(0, items.length - 1);
-                    console.log("choosed item: ", choosedItem);
+                      var choosedItem = rand(0, items.length - 1);
+                      console.log("choosed item: ", choosedItem);
 
-                    var podcastUrl = items[choosedItem].enclosure[0].$.url;
-                    console.log(podcastUrl)
+                      var podcastUrl = items[choosedItem].enclosure[0].$.url;
+                      console.log(podcastUrl)
 
-                    context.succeed({
-                      "dialogAction": {
-                        "type": "Close",
-                        "fulfillmentState": "Fulfilled",
-                        "message": {
-                          "contentType": "PlainText",
-                          "content": podcastUrl
-                        }
-                      }
-                    })
+                      fullfill(context, podcastUrl)
+                    });
+                  } catch (e) {
+                    console.log("bad data structure found");
+                    fullfill(context, "bad data structure found")
+                  }
 
-                  });
                 } else {
-                  console.log("request error: ", error);
+                  console.log("unable to get podcasts from randomly selected channel: ", error);
+                  fullfill(context, "unable to get podcasts from randomly selected channel")
                 }
               })
           }
         } else {
-          console.log("find error: ", err);
+          console.log("mongodb: unknown error while finding channels for category " + category);
+          fullfill(context, "mongodb: unknown error while finding channels for category " + category)
         }
       });
 
