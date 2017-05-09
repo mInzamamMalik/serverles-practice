@@ -1,11 +1,31 @@
 // when i call to twilio from my number my function received this
 event = {
     "body": {
-        "ApiVersion": "2008-08-01", "CalledZip": "55401", "Called": "6122551448", "CalledCity": "MINNEAPOLIS",
-        "CallStatus": "completed", "Duration": "1", "CallerCountry": "PK", "CallGuid": "CA298d502c45b8d5c2a8ad138f7f285558", "CallDuration": "6", "Timestamp": "Sat, 06 May 2017 20:57: 37 + 0000", "AccountSid": "AC    bebf3b569314a14fe10fd41df46055f4", "CallbackSource": "call- progress - events", "CalledCountry": "US",
-        "CallerCity": "", "AccountGuid": "ACbebf3b569314a14fe10fd41df46055f4", "CallerState": "", "Caller": "923022004480", "CallSegmentGuid": "", "SequenceNumber": "0", "CalledState": "MN", "CallSid": "CA298d502c45b8d5c2a8ad138f7f285558", "CallerZip": ""
+        "ApiVersion": "2008-08-01",
+        "CalledZip": "55401",
+        "Called": "6122551448",
+        "CalledCity": "MINNEAPOLIS",
+        "CallStatus": "completed",
+        "Duration": "1",
+        "CallerCountry": "PK",
+        "CallGuid": "CA298d502c45b8d5c2a8ad138f7f285558",
+        "CallDuration": "6",
+        "Timestamp": "Sat, 06 May 2017 20:57: 37 + 0000",
+        "AccountSid": "AC    bebf3b569314a14fe10fd41df46055f4",
+        "CallbackSource": "call- progress - events",
+        "CalledCountry": "US",
+        "CallerCity": "",
+        "AccountGuid": "ACbebf3b569314a14fe10fd41df46055f4",
+        "CallerState": "",
+        "Caller": "923022004480",
+        "CallSegmentGuid": "",
+        "SequenceNumber": "0",
+        "CalledState": "MN",
+        "CallSid": "CA298d502c45b8d5c2a8ad138f7f285558",
+        "CallerZip": ""
     },
     "method": "POST",
+
     "principalId": "",
     "stage": "dev",
     "cognitoPoolClaims": { "sub": "" },

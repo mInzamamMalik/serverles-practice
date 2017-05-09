@@ -7,7 +7,6 @@ var port = (process.env.PORT || 4000);
 
 app.use(bodyParser.json())
 
-
 // helper to append a new "Say" verb with alice voice
 function say(text, twimlRef) {
     twimlRef.say({ voice: 'alice' }, text);
@@ -19,18 +18,18 @@ function respond(responseRef, twimlRef) {
 }
 
 app.post("/voice", function (request, response, next) {
-
-    console.log("request: ", (request));
+    console.log("request.body: ", request.body); //body is comming as empty object
+    console.log("request.query: ", request.query);
 
     var phone = request.body.From;
     var input = request.body.RecordingUrl;
     var twiml = new VoiceResponse();
-
     console.log("phone, input: ", phone, input);
 
-    say('Please record your response after the beep. Press any key to finish.', twiml);
+    say('What type of podcast would you like to listen. Press any key to finish.', twiml);
     twiml.record({
-        transcribe: true,
+        method: 'POST',
+        action: '/voice/transcribe',
         transcribeCallback: '/voice/transcribe',
         maxLength: 10
     });
@@ -38,9 +37,9 @@ app.post("/voice", function (request, response, next) {
     respond(response, twiml);
 });
 
-
 app.post("/voice/transcribe", function (request, response, next) {
-    console.log("request: ", (request));
+    console.log("request: ", request.body); //body is comming as empty object
+    console.log("request.query: ", request.query);
 
     var phone = request.body.From;
     var input = request.body.RecordingUrl;
@@ -49,8 +48,9 @@ app.post("/voice/transcribe", function (request, response, next) {
     var transcript = request.body.TranscriptionText;
 
     console.log("transcribe text: ", transcript);
-    var mp3Url = "https://files-01.mobilesringtones.com/files/2015/05/01/8033/8033.mp3"
+    var mp3Url = 'https://api.twilio.com/cowbell.mp3'
 
+    say('start playing.', twiml);
     twiml.play(mp3Url);
 
     respond(response, twiml);
