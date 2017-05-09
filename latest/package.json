@@ -5,6 +5,8 @@
   "main": "handler.js",
   "dependencies": {
     "aws-sdk": "^2.49.0",
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
     "mongoose": "^4.9.7",
     "node-uuid": "^1.4.8",
     "request": "^2.81.0",
@@ -13,6 +15,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "node nodeServer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
