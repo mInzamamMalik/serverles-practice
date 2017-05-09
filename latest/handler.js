@@ -30,19 +30,23 @@ function fullfill(context, fulfilmentMessage) {
   })
 }
 
+// helper function for generating random number
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 
 // lex fulfilment webhook
 module.exports.webhook = (event, context, callback) => {
   try {
-
     console.log("event: ", event);
+    var intentName = event.currentIntent.name; //which intent this request is comming from
 
-    var category = event.currentIntent.slots['category']; //religion, sports, politics, business, music, education
-    var intentName = event.currentIntent.name
+    var category = event.currentIntent.slots['category']; //extracting category selected ny user, religion, sports, politics, business, music, education
     console.log("intent name: ", category);
-    console.log("slot: ", category);
-    var regex = new RegExp(category, 'i');
+    var regex = new RegExp(category, 'i'); // creating regex expressing on behalf of user selected category for dynamic search
 
+    // mongoose find statment
     model.find({
       $or: [
         { "Title": regex },
@@ -57,41 +61,52 @@ module.exports.webhook = (event, context, callback) => {
       function (err, _data) {
         if (!err) {
           if (!_data || !_data.length) {
-
+            // in case of empty response
             console.log("mongodb: no channel found for category " + category);
             fullfill(context, "mongodb: no channel found for category " + category)
 
           } else {
+            // in case of successful response
             var data = JSON.parse(JSON.stringify(_data));//simplified object
 
+            // logging how many channels we found for given category
             console.log("data: ", data.length);
+
+            // selecting a random channel
             var choose = rand(0, data.length - 1)
             console.log("choosed: ", choose);
 
+            // extracting feed url from that randomly selected channel
             var feedUrl = data[choose]["Feed"];
             console.log("Feed: ", feedUrl);
+
+            // making request on feed url for getting podcast items
             request(feedUrl,
               function (error, response, body) {
+
+                //checking if response was success
                 if (!error && response.statusCode == 200) {
-                  
+
                   // some time we are getting bad data structure so we catch that error here
                   try {
+                    var xmlbody = body.toString(); //got xml response from feed url of channel
 
-                    var xmlbody = body.toString();
-                    // console.log("body: ", xmlbody);
-                    parseXmlToJson(xmlbody, function (err, json) {
+                    parseXmlToJson(xmlbody, function (err, json) { //parsing xml to json to process further
                       console.log(json);
 
+                      //we got some podcast item form channel feed, logging length of items
                       console.log("items length: ", json.rss.channel[0].item['length']);
-                      // console.log("items: ", JSON.stringify(json.rss.channel[0].item));
                       var items = json.rss.channel[0].item;
 
+                      //choose an item randomly
                       var choosedItem = rand(0, items.length - 1);
                       console.log("choosed item: ", choosedItem);
 
+                      // mp3 url of selected podcast
                       var podcastUrl = items[choosedItem].enclosure[0].$.url;
                       console.log(podcastUrl)
 
+                      // send mp3 url as fullfilment of bot
                       fullfill(context, podcastUrl)
                     });
                   } catch (e) {
@@ -100,27 +115,25 @@ module.exports.webhook = (event, context, callback) => {
                   }
 
                 } else {
-                  console.log("unable to get podcasts from randomly selected channel: ", error);
-                  fullfill(context, "unable to get podcasts from randomly selected channel")
+                  // in case of feed url response was not successful 
+                  console.log("Possibly Dead link: unable to get podcasts from randomly selected channel: ", error);
+                  fullfill(context, "Possibly Dead link: unable to get podcasts from randomly selected channel")
                 }
               })
           }
         } else {
+          // in case of mongose find statment return error
           console.log("mongodb: unknown error while finding channels for category " + category);
           fullfill(context, "mongodb: unknown error while finding channels for category " + category)
         }
       });
-
-    function rand(min, max) {
-      return Math.floor(Math.random() * (max - min + 1) + min);
-    }
   } catch (e) {
     console.log("catch: ", e);
   }
 };
 
 
-//exposed rest api of lex
+//exposed rest api of lex, not utilised in our production it is just for testing
 module.exports.say = (event, context, callback) => {
   var lexruntime = new AWS.LexRuntime();
 
